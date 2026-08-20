@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>REIN LED Display</title>
+  <style type="text/css">
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #eef3f6;
+      color: #142b38;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    #app {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f4f8fa;
+    }
+
+    #header {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 190px;
+      padding: 34px 42px;
+      background: #ffffff;
+      border-bottom: 2px solid #dbe6eb;
+    }
+
+    #brand-left { float: left; width: 76%; }
+    #brand-mark {
+      float: left;
+      width: 78px;
+      height: 78px;
+      line-height: 78px;
+      margin: 4px 20px 0 0;
+      text-align: center;
+      font-size: 38px;
+      font-weight: bold;
+      color: #ffffff;
+      background: #167a9c;
+      border-radius: 16px;
+    }
+    #brand-kicker {
+      padding-top: 2px;
+      font-size: 15px;
+      line-height: 20px;
+      letter-spacing: 2px;
+      font-weight: bold;
+      color: #277da8;
+    }
+    #brand-title {
+      margin-top: 8px;
+      font-size: 34px;
+      line-height: 40px;
+      font-weight: bold;
+    }
+    #campus-name {
+      margin-top: 7px;
+      font-size: 17px;
+      line-height: 23px;
+      color: #647887;
+    }
+
+    #header-right {
+      float: right;
+      width: 23%;
+      text-align: right;
+    }
+    #live-badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 1px solid #bcded2;
+      border-radius: 20px;
+      background: #eef8f4;
+      color: #167b62;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    #live-badge.offline {
+      border-color: #e0c9bf;
+      background: #fbf3ef;
+      color: #a65b3f;
+    }
+    #clock {
+      margin-top: 14px;
+      font-size: 30px;
+      line-height: 34px;
+      font-weight: bold;
+    }
+    #date-line {
+      margin-top: 5px;
+      font-size: 14px;
+      line-height: 18px;
+      color: #647887;
+    }
+
+    #content {
+      position: absolute;
+      left: 0;
+      top: 190px;
+      width: 100%;
+      bottom: 105px;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 46px 34px 46px;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    .slide-head { height: 118px; }
+    .slide-head-left { float: left; }
+    .section-label {
+      font-size: 15px;
+      line-height: 20px;
+      letter-spacing: 2px;
+      font-weight: bold;
+      color: #8798a4;
+    }
+    .section-title {
+      margin-top: 7px;
+      font-size: 58px;
+      line-height: 64px;
+      font-weight: bold;
+    }
+    .status-pill {
+      float: right;
+      min-width: 180px;
+      margin-top: 10px;
+      padding: 14px 20px;
+      text-align: center;
+      border: 1px solid #d8e4ea;
+      border-radius: 26px;
+      background: #ffffff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .tone-good { color: #167b62; }
+    .tone-moderate { color: #a96f08; }
+    .tone-poor { color: #c05239; }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      padding: 38px 42px;
+      background: #ffffff;
+      border: 1px solid #d6e3ea;
+      border-radius: 28px;
+      overflow: hidden;
+    }
+    .weather-hero { background: #f7fbfd; border-color: #cfe2ec; }
+    .air-hero { background: #f7fcfa; border-color: #cce5dc; }
+    .noise-hero { background: #faf9fd; border-color: #ddd8ee; }
+    .hero-label {
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #82939f;
+    }
+    .hero-number {
+      margin-top: 24px;
+      font-size: 132px;
+      line-height: 132px;
+      font-weight: bold;
+      letter-spacing: -5px;
+      white-space: nowrap;
+    }
+    .hero-number small {
+      margin-left: 10px;
+      font-size: 35px;
+      letter-spacing: 0;
+      color: #647887;
+    }
+    .hero-title {
+      margin-top: 18px;
+      font-size: 40px;
+      line-height: 46px;
+      font-weight: bold;
+    }
+    .hero-copy {
+      margin-top: 10px;
+      font-size: 21px;
+      line-height: 28px;
+      color: #647887;
+    }
+    .small-chip {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 9px 15px;
+      border: 1px solid #c7e4d9;
+      border-radius: 20px;
+      background: #edf8f4;
+      color: #167b62;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .cards { width: 100%; overflow: hidden; }
+    .weather-cards { margin-top: 24px; }
+    .card {
+      position: relative;
+      float: left;
+      background: #ffffff;
+      border: 1px solid #d6e3ea;
+      border-radius: 22px;
+      padding: 24px 26px;
+      overflow: hidden;
+    }
+    .weather-card {
+      width: 49%;
+      height: 205px;
+      margin-right: 2%;
+      margin-bottom: 22px;
+    }
+    .weather-card.right { margin-right: 0; }
+    .card-label {
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: bold;
+      color: #647887;
+    }
+    .card-value {
+      margin-top: 18px;
+      font-size: 62px;
+      line-height: 68px;
+      font-weight: bold;
+      letter-spacing: -2px;
+      white-space: nowrap;
+    }
+    .card-value small {
+      margin-left: 6px;
+      font-size: 22px;
+      letter-spacing: 0;
+      color: #647887;
+    }
+    .card-value.text-value {
+      font-size: 42px;
+      line-height: 48px;
+      letter-spacing: -1px;
+      white-space: normal;
+    }
+    .card-copy {
+      margin-top: 8px;
+      font-size: 16px;
+      line-height: 22px;
+      color: #647887;
+    }
+
+    .group-title {
+      margin: 25px 2px 12px 2px;
+      font-size: 17px;
+      line-height: 22px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #687d8a;
+    }
+    .group-title span { float: right; font-weight: normal; font-size: 14px; letter-spacing: 0; }
+    .pm-card {
+      width: 23.5%;
+      height: 205px;
+      margin-right: 2%;
+      padding: 22px 18px;
+    }
+    .pm-card.last { margin-right: 0; }
+    .pm-card .card-value { font-size: 51px; line-height: 56px; }
+    .pm-card .card-copy { font-size: 14px; }
+
+    .gas-card {
+      width: 18.4%;
+      height: 215px;
+      margin-right: 2%;
+      padding: 22px 16px;
+    }
+    .gas-card.last { margin-right: 0; }
+    .gas-card .card-value { font-size: 43px; line-height: 48px; }
+    .gas-card .card-value small {
+      display: block;
+      margin: 6px 0 0 0;
+      font-size: 16px;
+      line-height: 18px;
+    }
+
+    #air-summary {
+      position: absolute;
+      right: 42px;
+      bottom: 38px;
+      width: 44%;
+    }
+    .air-summary-item {
+      float: left;
+      width: 50%;
+      padding-left: 14px;
+      border-left: 4px solid #168568;
+    }
+    .air-summary-item span {
+      display: block;
+      font-size: 14px;
+      color: #768995;
+    }
+    .air-summary-item b {
+      display: block;
+      margin-top: 6px;
+      font-size: 24px;
+      color: #102433;
+    }
+
+    #noise-scale {
+      width: 100%;
+      height: 150px;
+      margin-top: 24px;
+      padding: 27px 18px;
+      background: #ffffff;
+      border: 1px solid #d6e3ea;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .scale-item {
+      float: left;
+      width: 33.333%;
+      text-align: center;
+    }
+    .scale-dot {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      margin-right: 8px;
+      border-radius: 15px;
+      vertical-align: 1px;
+    }
+    .green-dot { background: #168568; }
+    .amber-dot { background: #c88917; }
+    .red-dot { background: #c84f35; }
+    .scale-item b { font-size: 22px; }
+    .scale-item small {
+      display: block;
+      margin-top: 9px;
+      font-size: 16px;
+      color: #687d8a;
+    }
+    .noise-card {
+      float: none;
+      width: 100%;
+      height: 220px;
+      margin-top: 22px;
+    }
+
+    #footer {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 105px;
+      padding: 30px 44px;
+      text-align: center;
+      background: #ffffff;
+      border-top: 2px solid #dbe6eb;
+    }
+    .nav-item {
+      display: inline-block;
+      margin: 0 22px;
+      color: #70838f;
+      font-size: 16px;
+      line-height: 28px;
+      font-weight: bold;
+    }
+    .nav-item i {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      margin-right: 8px;
+      border-radius: 11px;
+      background: #c7d3da;
+    }
+    .nav-item.on { color: #102433; }
+    .nav-item.on i { background: #168568; }
+    #timer-label {
+      position: absolute;
+      right: 42px;
+      top: 34px;
+      color: #82939f;
+      font-size: 14px;
+    }
+    #data-status {
+      position: absolute;
+      left: 42px;
+      top: 34px;
+      color: #82939f;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="header">
+      <div id="brand-left">
+        <div id="brand-mark">R</div>
+        <div id="brand-kicker">REC ENVIRONMENTAL INTELLIGENCE NETWORK</div>
+        <div id="brand-title">Campus Environmental Display</div>
+        <div id="campus-name">Rajalakshmi Engineering College - Thandalam, Chennai</div>
+      </div>
+      <div id="header-right">
+        <div id="live-badge">LIVE</div>
+        <div id="clock">00:00:00</div>
+        <div id="date-line">--</div>
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="slide active" id="slide-weather">
+        <div class="slide-head">
+          <div class="slide-head-left">
+            <div class="section-label">LIVE CAMPUS CONDITIONS</div>
+            <div class="section-title">Weather</div>
+          </div>
+          <div class="status-pill tone-good" id="weather-pill">GOOD</div>
+        </div>
+
+        <div class="hero weather-hero">
+          <div class="hero-label">CURRENT TEMPERATURE</div>
+          <div class="hero-number"><span id="weather-temp">29.4</span><small>&deg;C</small></div>
+          <div class="hero-title" id="weather-status">Partly Cloudy</div>
+          <div class="hero-copy" id="weather-meta">Light SW winds at 9 km/h</div>
+          <div class="small-chip" id="weather-chip">COMFORTABLE</div>
+        </div>
+
+        <div class="cards weather-cards">
+          <div class="card weather-card">
+            <div class="card-label">Humidity</div>
+            <div class="card-value"><span id="weather-humidity">54</span><small>%</small></div>
+            <div class="card-copy">Relative humidity</div>
+          </div>
+          <div class="card weather-card right">
+            <div class="card-label">Heat Index</div>
+            <div class="card-value"><span id="weather-heat">31.2</span><small>&deg;C</small></div>
+            <div class="card-copy">Feels-like temperature</div>
+          </div>
+          <div class="card weather-card">
+            <div class="card-label">Dew Point</div>
+            <div class="card-value"><span id="weather-dew">18.5</span><small>&deg;C</small></div>
+            <div class="card-copy">Atmospheric moisture</div>
+          </div>
+          <div class="card weather-card right">
+            <div class="card-label">Wind</div>
+            <div class="card-value"><span id="weather-wind">9</span><small>km/h</small></div>
+            <div class="card-copy"><span id="weather-direction">SW</span> - light breeze</div>
+          </div>
+          <div class="card weather-card">
+            <div class="card-label">Rainfall</div>
+            <div class="card-value"><span id="weather-rain">0.0</span><small>mm</small></div>
+            <div class="card-copy">Current rainfall</div>
+          </div>
+          <div class="card weather-card right">
+            <div class="card-label">Rain Alert</div>
+            <div class="card-value text-value" id="weather-alert">Clear</div>
+            <div class="card-copy" id="weather-alert-meta">No rain expected</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-air">
+        <div class="slide-head">
+          <div class="slide-head-left">
+            <div class="section-label">LIVE CAMPUS CONDITIONS</div>
+            <div class="section-title">Air Quality</div>
+          </div>
+          <div class="status-pill tone-good" id="air-pill">GOOD</div>
+        </div>
+
+        <div class="hero air-hero">
+          <div class="hero-label">AIR QUALITY INDEX</div>
+          <div class="hero-number"><span id="air-aqi">42</span><small>AQI</small></div>
+          <div class="hero-title" id="air-category">Good</div>
+          <div class="hero-copy">Dominant pollutant - <b id="air-dominant">PM2.5</b></div>
+          <div id="air-summary">
+            <div class="air-summary-item"><span>Temperature</span><b><span id="air-temp">29.4</span>&deg;C</b></div>
+            <div class="air-summary-item"><span>Humidity</span><b><span id="air-humidity">54</span>%</b></div>
+          </div>
+        </div>
+
+        <div class="group-title">PARTICULATE MATTER <span>microgram/m3</span></div>
+        <div class="cards">
+          <div class="card pm-card"><div class="card-label">PM1</div><div class="card-value"><span id="pm1">12</span></div><div class="card-copy">Ultrafine</div></div>
+          <div class="card pm-card"><div class="card-label">PM2.5</div><div class="card-value"><span id="pm25">18</span></div><div class="card-copy">Fine</div></div>
+          <div class="card pm-card"><div class="card-label">PM4</div><div class="card-value"><span id="pm4">24</span></div><div class="card-copy">Coarse-fine</div></div>
+          <div class="card pm-card last"><div class="card-label">PM10</div><div class="card-value"><span id="pm10">32</span></div><div class="card-copy">Inhalable</div></div>
+        </div>
+
+        <div class="group-title">ATMOSPHERIC GASES</div>
+        <div class="cards">
+          <div class="card gas-card"><div class="card-label">CO2</div><div class="card-value"><span id="co2">410</span><small>ppm</small></div></div>
+          <div class="card gas-card"><div class="card-label">NOx</div><div class="card-value"><span id="nox">18</span><small>ppb</small></div></div>
+          <div class="card gas-card"><div class="card-label">VOC</div><div class="card-value"><span id="voc">3</span><small>index</small></div></div>
+          <div class="card gas-card"><div class="card-label">CO</div><div class="card-value"><span id="co">0.5</span><small>ppm</small></div></div>
+          <div class="card gas-card last"><div class="card-label">O3</div><div class="card-value"><span id="o3">42</span><small>ppb</small></div></div>
+        </div>
+      </div>
+
+      <div class="slide" id="slide-noise">
+        <div class="slide-head">
+          <div class="slide-head-left">
+            <div class="section-label">LIVE CAMPUS CONDITIONS</div>
+            <div class="section-title">Noise</div>
+          </div>
+          <div class="status-pill tone-good" id="noise-pill">LOW</div>
+        </div>
+
+        <div class="hero noise-hero">
+          <div class="hero-label">CAMPUS AVERAGE</div>
+          <div class="hero-number"><span id="noise-level">48</span><small>dB(A)</small></div>
+          <div class="hero-title" id="noise-status">Quiet - Safe</div>
+          <div class="hero-copy" id="noise-meta">Campus average - peak 64 dB(A)</div>
+        </div>
+
+        <div id="noise-scale">
+          <div class="scale-item"><span class="scale-dot green-dot"></span><b>Low</b><small>Below 55 dB</small></div>
+          <div class="scale-item"><span class="scale-dot amber-dot"></span><b>Moderate</b><small>55-70 dB</small></div>
+          <div class="scale-item"><span class="scale-dot red-dot"></span><b>High</b><small>Above 70 dB</small></div>
+        </div>
+
+        <div class="card noise-card">
+          <div class="card-label">Current Status</div>
+          <div class="card-value text-value" id="noise-current">Quiet - Safe</div>
+          <div class="card-copy">Suitable for normal campus activity</div>
+        </div>
+        <div class="card noise-card">
+          <div class="card-label">Noise Alerts</div>
+          <div class="card-value text-value" id="noise-alerts">None</div>
+          <div class="card-copy" id="noise-alert-meta">All monitored zones within limits</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer">
+      <div id="data-status">DATA: fallback</div>
+      <div class="nav-item on" id="nav0"><i></i>Weather</div>
+      <div class="nav-item" id="nav1"><i></i>Air Quality</div>
+      <div class="nav-item" id="nav2"><i></i>Noise</div>
+      <div id="timer-label">AUTO - <span id="slide-time-label">12</span>s</div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    (function () {
+      /* ============================================================
+         SETTINGS
+         ============================================================
+         SLIDE_TIME: milliseconds each page stays visible.
+         DATA_REFRESH_TIME: how often live data is requested.
+
+         For the safest same-origin setup, host this index.html from
+         the same backend and use:  API_URL = '/api/led-data';
+
+         For testing with the included data.json use:
+         API_URL = 'data.json';
+
+         If you use an absolute LAN API URL on another port/domain,
+         that backend must allow CORS for this page.
+      */
+      var SLIDE_TIME = 12000;
+      var DATA_REFRESH_TIME = 5000;
+      var API_URL = 'data.json';
+
+      var fallbackData = {
+        campus: { name: 'Rajalakshmi Engineering College', location: 'Thandalam, Chennai' },
+        weather: {
+          temperature: 29.4, status: 'Partly Cloudy', meta: 'Light SW winds at 9 km/h',
+          humidity: 54, heatIndex: 31.2, dewPoint: 18.5, windSpeed: 9,
+          windDirection: 'SW', rainfall: 0.0, rainAlert: 'Clear',
+          rainAlertMeta: 'No rain expected'
+        },
+        air: {
+          aqi: 42, category: 'Good', dominant: 'PM2.5', temperature: 29.4,
+          humidity: 54, pm1: 12, pm25: 18, pm4: 24, pm10: 32,
+          co2: 410, nox: 18, voc: 3, co: 0.5, o3: 42
+        },
+        noise: {
+          level: 48, category: 'Low', status: 'Quiet - Safe',
+          meta: 'Campus average - peak 64 dB(A)', alerts: 'None',
+          alertMeta: 'All monitored zones within limits'
+        }
+      };
+
+      var slides = [
+        document.getElementById('slide-weather'),
+        document.getElementById('slide-air'),
+        document.getElementById('slide-noise')
+      ];
+      var nav = [
+        document.getElementById('nav0'),
+        document.getElementById('nav1'),
+        document.getElementById('nav2')
+      ];
+      var currentSlide = 0;
+
+      function byId(id) { return document.getElementById(id); }
+      function setText(id, value) {
+        var el = byId(id);
+        if (el && value !== undefined && value !== null) {
+          if (el.textContent !== undefined) el.textContent = String(value);
+          else el.innerText = String(value);
+        }
+      }
+      function two(n) { return n < 10 ? '0' + n : String(n); }
+
+      function setPill(id, textValue, tone) {
+        var el = byId(id);
+        if (!el) return;
+        el.className = 'status-pill ' + tone;
+        setText(id, textValue);
+      }
+
+      function aqiTone(value) {
+        var n = Number(value);
+        if (n <= 50) return 'tone-good';
+        if (n <= 100) return 'tone-moderate';
+        return 'tone-poor';
+      }
+
+      function noiseTone(value) {
+        var n = Number(value);
+        if (n < 55) return 'tone-good';
+        if (n <= 70) return 'tone-moderate';
+        return 'tone-poor';
+      }
+
+      function updateClock() {
+        var now = new Date();
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        setText('clock', two(now.getHours()) + ':' + two(now.getMinutes()) + ':' + two(now.getSeconds()));
+        setText('date-line', days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear());
+      }
+
+      function applyData(data, sourceLabel) {
+        var w, a, n, campusText;
+        if (!data) return;
+
+        if (data.campus) {
+          campusText = data.campus.name || '';
+          if (data.campus.location) campusText += ' - ' + data.campus.location;
+          setText('campus-name', campusText);
+        }
+
+        w = data.weather || {};
+        setText('weather-temp', w.temperature);
+        setText('weather-status', w.status);
+        setText('weather-meta', w.meta);
+        setText('weather-humidity', w.humidity);
+        setText('weather-heat', w.heatIndex);
+        setText('weather-dew', w.dewPoint);
+        setText('weather-wind', w.windSpeed);
+        setText('weather-direction', w.windDirection);
+        setText('weather-rain', w.rainfall);
+        setText('weather-alert', w.rainAlert);
+        setText('weather-alert-meta', w.rainAlertMeta);
+        setPill('weather-pill', (w.status || 'GOOD').toUpperCase(), 'tone-good');
+
+        a = data.air || {};
+        setText('air-aqi', a.aqi);
+        setText('air-category', a.category);
+        setText('air-dominant', a.dominant);
+        setText('air-temp', a.temperature);
+        setText('air-humidity', a.humidity);
+        setText('pm1', a.pm1);
+        setText('pm25', a.pm25);
+        setText('pm4', a.pm4);
+        setText('pm10', a.pm10);
+        setText('co2', a.co2);
+        setText('nox', a.nox);
+        setText('voc', a.voc);
+        setText('co', a.co);
+        setText('o3', a.o3);
+        setPill('air-pill', (a.category || 'AIR').toUpperCase(), aqiTone(a.aqi));
+
+        n = data.noise || {};
+        setText('noise-level', n.level);
+        setText('noise-status', n.status);
+        setText('noise-current', n.status);
+        setText('noise-meta', n.meta);
+        setText('noise-alerts', n.alerts);
+        setText('noise-alert-meta', n.alertMeta);
+        setPill('noise-pill', (n.category || 'NOISE').toUpperCase(), noiseTone(n.level));
+
+        if (sourceLabel) setText('data-status', 'DATA: ' + sourceLabel);
+      }
+
+      function showSlide(index) {
+        var i;
+        currentSlide = index;
+        if (currentSlide >= slides.length) currentSlide = 0;
+        if (currentSlide < 0) currentSlide = slides.length - 1;
+
+        for (i = 0; i < slides.length; i++) {
+          slides[i].className = (i === currentSlide) ? 'slide active' : 'slide';
+          nav[i].className = (i === currentSlide) ? 'nav-item on' : 'nav-item';
+        }
+      }
+
+      function nextSlide() { showSlide(currentSlide + 1); }
+
+      function setLiveState(ok) {
+        var badge = byId('live-badge');
+        if (!badge) return;
+        if (ok) {
+          badge.className = '';
+          setText('live-badge', 'LIVE');
+        } else {
+          badge.className = 'offline';
+          setText('live-badge', 'LOCAL');
+        }
+      }
+
+      function loadLiveData() {
+        var xhr;
+        try {
+          xhr = new XMLHttpRequest();
+          xhr.open('GET', API_URL + (API_URL.indexOf('?') >= 0 ? '&' : '?') + '_=' + new Date().getTime(), true);
+          xhr.onreadystatechange = function () {
+            var parsed;
+            if (xhr.readyState !== 4) return;
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                parsed = JSON.parse(xhr.responseText);
+                applyData(parsed, 'live');
+                setLiveState(true);
+              } catch (parseError) {
+                setLiveState(false);
+              }
+            } else {
+              setLiveState(false);
+            }
+          };
+          xhr.send(null);
+        } catch (requestError) {
+          setLiveState(false);
+        }
+      }
+
+      setText('slide-time-label', Math.round(SLIDE_TIME / 1000));
+      applyData(fallbackData, 'fallback');
+      updateClock();
+      showSlide(0);
+
+      window.setInterval(updateClock, 1000);
+      window.setInterval(nextSlide, SLIDE_TIME);
+      window.setInterval(loadLiveData, DATA_REFRESH_TIME);
+      window.setTimeout(loadLiveData, 1000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{
+  "campus": {
+    "name": "Rajalakshmi Engineering College",
+    "location": "Thandalam, Chennai"
+  },
+  "weather": {
+    "temperature": 29.4,
+    "status": "Partly Cloudy",
+    "meta": "Light SW winds at 9 km/h",
+    "humidity": 54,
+    "heatIndex": 31.2,
+    "dewPoint": 18.5,
+    "windSpeed": 9,
+    "windDirection": "SW",
+    "rainfall": 0.0,
+    "rainAlert": "Clear",
+    "rainAlertMeta": "No rain expected"
+  },
+  "air": {
+    "aqi": 42,
+    "category": "Good",
+    "dominant": "PM2.5",
+    "temperature": 29.4,
+    "humidity": 54,
+    "pm1": 12,
+    "pm25": 18,
+    "pm4": 24,
+    "pm10": 32,
+    "co2": 410,
+    "nox": 18,
+    "voc": 3,
+    "co": 0.5,
+    "o3": 42
+  },
+  "noise": {
+    "level": 48,
+    "category": "Low",
+    "status": "Quiet - Safe",
+    "meta": "Campus average - peak 64 dB(A)",
+    "alerts": "None",
+    "alertMeta": "All monitored zones within limits"
+  }
+}
